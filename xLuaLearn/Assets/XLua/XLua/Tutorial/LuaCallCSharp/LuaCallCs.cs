@@ -179,8 +179,7 @@ namespace Tutorial
 	}
 }
 
-public class LuaCallCs : MonoBehaviour
-{
+public class LuaCallCs : MonoBehaviour {
 	LuaEnv luaenv = null;
 	string script = @"
         function demo()
@@ -293,23 +292,19 @@ public class LuaCallCs : MonoBehaviour
     ";
 
 	// Use this for initialization
-	void Start()
-	{
+	void Start() {
 		luaenv = new LuaEnv();
 		luaenv.DoString(script);
 	}
 
 	// Update is called once per frame
-	void Update()
-	{
-		if (luaenv != null)
-		{
+	void Update() {
+		if (luaenv != null) {
 			luaenv.Tick();
 		}
 	}
 
-	void OnDestroy()
-	{
+	void OnDestroy() {
 		luaenv.Dispose();
 	}
 }

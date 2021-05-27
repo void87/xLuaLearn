@@ -10,29 +10,23 @@ using UnityEngine;
 using System.Collections;
 using XLua;
 
-namespace Tutorial
-{
-    public class ByString : MonoBehaviour
-    {
+namespace Tutorial {
+    public class ByString : MonoBehaviour {
         LuaEnv luaenv = null;
         // Use this for initialization
-        void Start()
-        {
+        void Start() {
             luaenv = new LuaEnv();
             luaenv.DoString("print('hello world')");
         }
 
         // Update is called once per frame
-        void Update()
-        {
-            if (luaenv != null)
-            {
+        void Update() {
+            if (luaenv != null) {
                 luaenv.Tick();
             }
         }
 
-        void OnDestroy()
-        {
+        void OnDestroy() {
             luaenv.Dispose();
         }
     }

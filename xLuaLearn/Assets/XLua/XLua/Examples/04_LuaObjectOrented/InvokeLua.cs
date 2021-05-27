@@ -10,19 +10,16 @@ using System;
 using UnityEngine;
 using XLua;
 
-namespace XLuaTest
-{
-    public class PropertyChangedEventArgs : EventArgs
-    {
+namespace XLuaTest {
+    public class PropertyChangedEventArgs : EventArgs {
         public string name;
         public object value;
     }
 
-    public class InvokeLua : MonoBehaviour
-    {
+    public class InvokeLua : MonoBehaviour {
+
         [CSharpCallLua]
-        public interface ICalc
-        {
+        public interface ICalc {
             event EventHandler<PropertyChangedEventArgs> PropertyChanged;
 
             int Add(int a, int b);
@@ -86,20 +83,21 @@ namespace XLuaTest
                 }
 	        ";
         // Use this for initialization
-        void Start()
-        {
+        void Start() {
             LuaEnv luaenv = new LuaEnv();
             Test(luaenv);//调用了带可变参数的delegate，函数结束都不会释放delegate，即使置空并调用GC
             luaenv.Dispose();
         }
 
-        void Test(LuaEnv luaenv)
-        {
+        void Test(LuaEnv luaenv) {
             luaenv.DoString(script);
             CalcNew calc_new = luaenv.Global.GetInPath<CalcNew>("Calc.New");
             ICalc calc = calc_new(10, "hi", "john"); //constructor
+
             Debug.Log("sum(*10) =" + calc.Add(1, 2));
+
             calc.Mult = 100;
+
             Debug.Log("sum(*100)=" + calc.Add(1, 2));
 
             Debug.Log("list[0]=" + calc[0]);
@@ -115,14 +113,12 @@ namespace XLuaTest
             Debug.Log("list[1]=" + calc[1]);
         }
 
-        void Notify(object sender, PropertyChangedEventArgs e)
-        {
+        void Notify(object sender, PropertyChangedEventArgs e) {
             Debug.Log(string.Format("{0} has property changed {1}={2}", sender, e.name, e.value));
         }
 
         // Update is called once per frame
-        void Update()
-        {
+        void Update() {
 
         }
     }
