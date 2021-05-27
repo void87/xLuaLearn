@@ -13,10 +13,36 @@ namespace XLuaTest {
     public class Helloworld : MonoBehaviour {
         // Use this for initialization
         void Start() {
-            LuaEnv luaenv = new LuaEnv();
-            luaenv.DoString("CS.UnityEngine.Debug.Log('hello world')");
-            luaenv.Dispose();
+
+            DoString();
+
+
         }
+
+        private void DoString() {
+            // LuaEnv
+            LuaEnv luaEnv = new LuaEnv();
+
+            // 描述
+            // 执行一个代码块
+            //
+            // 参数值
+            // chunk: Lua代码文字串
+            // chunkName: 发生error时的debug显示信息中使用,指明某某代码块的某行错误
+            // env: 这个代码块的环境变量
+            //
+            // 返回值
+            // 代码块里 return 语句的返回值
+            object[] returns = luaEnv.DoString("CS.UnityEngine.Debug.Log('Hello World'); return 1, 'hello';");
+
+            foreach (var ret in returns) {
+                Debug.Log(ret);
+            }
+
+            luaEnv.Dispose();
+
+        }
+
 
         // Update is called once per frame
         void Update() {

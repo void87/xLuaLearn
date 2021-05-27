@@ -12,22 +12,20 @@ using System.Collections.Generic;
 using XLua;
 using System;
 
-namespace XLuaTest
-{
+namespace XLuaTest {
     [System.Serializable]
-    public class Injection
-    {
+    public class Injection {
         public string name;
         public GameObject value;
     }
 
     [LuaCallCSharp]
-    public class LuaBehaviour : MonoBehaviour
-    {
+    public class LuaBehaviour : MonoBehaviour {
         public TextAsset luaScript;
         public Injection[] injections;
 
         internal static LuaEnv luaEnv = new LuaEnv(); //all lua behaviour shared one luaenv only!
+
         internal static float lastGCTime = 0;
         internal const float GCInterval = 1;//1 second 
 
@@ -35,70 +33,79 @@ namespace XLuaTest
         private Action luaUpdate;
         private Action luaOnDestroy;
 
-        private LuaTable scriptEnv;
+        private LuaTable luaTable;
 
-        void Awake()
-        {
-            scriptEnv = luaEnv.NewTable();
+        void Awake() {
+
+            luaTable = luaEnv.NewTable();
 
             // 为每个脚本设置一个独立的环境，可一定程度上防止脚本间全局变量、函数冲突
-            LuaTable meta = luaEnv.NewTable();
-            meta.Set("__index", luaEnv.Global);
-            scriptEnv.SetMetaTable(meta);
-            meta.Dispose();
+            LuaTable metaLuaTable = luaEnv.NewTable();
+            // 元表 设置 __index
+            metaLuaTable.Set("__index", luaEnv.Global);
+            // luaTable 设置 元表
+            luaTable.SetMetaTable(metaLuaTable);
+            // 元表释放
+            metaLuaTable.Dispose();
 
-            scriptEnv.Set("self", this);
-            foreach (var injection in injections)
-            {
-                scriptEnv.Set(injection.name, injection.value);
+            // luaTable 设置 self 为 this, lua 里可以调用这个 self
+            luaTable.Set("self", this);
+
+            foreach (Injection injection in injections) {
+                luaTable.Set(injection.name, injection.value);
             }
 
-            luaEnv.DoString(luaScript.text, "LuaTestScript", scriptEnv);
+            // 关联到 luaTable（将 LuaScript 里的内容 解析到 LuaTable 中?）
+            luaEnv.DoString(luaScript.text, "LuaTestScript", luaTable);
 
-            Action luaAwake = scriptEnv.Get<Action>("awake");
-            scriptEnv.Get("start", out luaStart);
-            scriptEnv.Get("update", out luaUpdate);
-            scriptEnv.Get("ondestroy", out luaOnDestroy);
+            // LuaTable Get<Action>
+            // 从 luaTable 从获取 awake 方法
+            Action luaAwake = luaTable.Get<Action>("awake");
 
-            if (luaAwake != null)
-            {
+            // 从 luaTable 从获取 start 方法 赋值给 luaStart
+            luaTable.Get("start", out luaStart);
+            // 从 luaTable 从获取 update 方法 赋值给 luaUpdate
+            luaTable.Get("update", out luaUpdate);
+            // 从 luaTable 从获取 ondestroy 方法 赋值给 luaOnDestroy
+            luaTable.Get("ondestroy", out luaOnDestroy);
+
+
+            if (luaAwake != null) {
+                // 调用 lua 脚本里的 awake 方法
                 luaAwake();
             }
         }
 
         // Use this for initialization
-        void Start()
-        {
-            if (luaStart != null)
-            {
+        void Start() {
+            if (luaStart != null) {
+                // 调用 lua 脚本里的 start 方法
                 luaStart();
             }
         }
 
         // Update is called once per frame
-        void Update()
-        {
-            if (luaUpdate != null)
-            {
+        void Update() {
+            if (luaUpdate != null) {
+                // 调用 lua 脚本里的 update 方法
                 luaUpdate();
             }
-            if (Time.time - LuaBehaviour.lastGCTime > GCInterval)
-            {
+
+            if (Time.time - LuaBehaviour.lastGCTime > GCInterval) {
                 luaEnv.Tick();
                 LuaBehaviour.lastGCTime = Time.time;
             }
         }
 
-        void OnDestroy()
-        {
-            if (luaOnDestroy != null)
-            {
+        void OnDestroy() {
+            if (luaOnDestroy != null) {
                 luaOnDestroy();
             }
+
             luaOnDestroy = null;
             luaUpdate = null;
             luaStart = null;
-            scriptEnv.Dispose();
+            luaTable.Dispose();
             injections = null;
         }
     }
