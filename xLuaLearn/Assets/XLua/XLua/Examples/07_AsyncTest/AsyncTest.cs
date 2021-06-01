@@ -11,23 +11,19 @@ using XLua;
 using System.Collections.Generic;
 using System;
 
-namespace XLuaTest
-{
-    public class AsyncTest : MonoBehaviour
-    {
+namespace XLuaTest {
+    public class AsyncTest : MonoBehaviour {
         LuaEnv luaenv = null;
 
-        void Start()
-        {
+        void Start() {
             luaenv = new LuaEnv();
+            // 加载 lua 脚本
             luaenv.DoString("require 'async_test'");
         }
 
         // Update is called once per frame
-        void Update()
-        {
-            if (luaenv != null)
-            {
+        void Update() {
+            if (luaenv != null) {
                 luaenv.Tick();
             }
         }

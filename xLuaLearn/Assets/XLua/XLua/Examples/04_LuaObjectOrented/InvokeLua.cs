@@ -6,11 +6,13 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 */
 
+// 已看
 using System;
 using UnityEngine;
 using XLua;
 
 namespace XLuaTest {
+
     public class PropertyChangedEventArgs : EventArgs {
         public string name;
         public object value;
@@ -29,7 +31,7 @@ namespace XLuaTest {
         }
 
         [CSharpCallLua]
-        public delegate ICalc CalcNew(int mult, params string[] args);
+        public delegate ICalc CalcNewDelegate(int mult, params string[] args);
 
         private string script = @"
                 local calc_mt = {
@@ -90,21 +92,32 @@ namespace XLuaTest {
         }
 
         void Test(LuaEnv luaenv) {
+            // 解析 Lua 脚本
             luaenv.DoString(script);
-            CalcNew calc_new = luaenv.Global.GetInPath<CalcNew>("Calc.New");
-            ICalc calc = calc_new(10, "hi", "john"); //constructor
+
+            // 通过 查找 lua 里的 Calc.New  创建 C# 里的 CalcNewDelegate，指向 Lua 里的 类型
+            CalcNewDelegate calc_newDelegate = luaenv.Global.GetInPath<CalcNewDelegate>("Calc.New");
+            // 调用 calc_mt.Add()
+            ICalc calc = calc_newDelegate(10, "hi", "john"); //constructor
 
             Debug.Log("sum(*10) =" + calc.Add(1, 2));
 
             calc.Mult = 100;
 
+            // 调用 calc_mt.Add()
             Debug.Log("sum(*100)=" + calc.Add(1, 2));
 
+            // 调用 Lua 中的 Calc.New.get_Item
             Debug.Log("list[0]=" + calc[0]);
+            // 调用 Lua 中的 Calc.New.get_Item
             Debug.Log("list[1]=" + calc[1]);
 
+
             calc.PropertyChanged += Notify;
+
+            // 调用 Lua 中的 Calc.New.set_Item
             calc[1] = "dddd";
+
             Debug.Log("list[1]=" + calc[1]);
 
             calc.PropertyChanged -= Notify;

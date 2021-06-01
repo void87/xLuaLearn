@@ -1,219 +1,202 @@
 ﻿using UnityEngine;
 using XLua;
 
-namespace XLuaTest
-{
+// 已看
+namespace XLuaTest {
+
+    // 表示可以热更
     [Hotfix]
-    public class HotfixCalc
-    {
-        public int Add(int a, int b)
-        {
+    public class HotfixCalc {
+        public int Add(int a, int b) {
             return a - b;
         }
 
-        public Vector3 Add(Vector3 a, Vector3 b)
-        {
+        public Vector3 Add(Vector3 a, Vector3 b) {
             return a - b;
         }
 
-        public int TestOut(int a, out double b, ref string c)
-        {
+        public int TestOut(int a, out double b, ref string c) {
             b = a + 2;
             c = "wrong version";
             return a + 3;
         }
 
-        public int TestOut(int a, out double b, ref string c, GameObject go)
-        {
+        public int TestOut(int a, out double b, ref string c, GameObject go) {
             return TestOut(a, out b, ref c);
         }
 
-        public T Test1<T>()
-        {
+        public T Test1<T>() {
             return default(T);
         }
 
-        public T1 Test2<T1, T2, T3>(T1 a, out T2 b, ref T3 c)
-        {
+        public T1 Test2<T1, T2, T3>(T1 a, out T2 b, ref T3 c) {
             b = default(T2);
             return a;
         }
 
-        public static int Test3<T>(T a)
-        {
+        public static int Test3<T>(T a) {
             return 0;
         }
 
-        public static void Test4<T>(T a)
-        {
+        public static void Test4<T>(T a) {
         }
 
-        public void Test5<T>(int a, params T[] arg)
-        {
+        public void Test5<T>(int a, params T[] arg) {
 
         }
     }
 
-    public class NoHotfixCalc
-    {
-        public int Add(int a, int b)
-        {
+    // 不能热更的类
+    public class NoHotfixCalc {
+        public int Add(int a, int b) {
             return a + b;
         }
     }
 
+    // 可以热更的泛型类
     [Hotfix]
-    public class GenericClass<T>
-    {
+    public class GenericClass<T> {
         T a;
 
-        public GenericClass(T a)
-        {
+        public GenericClass(T a) {
             this.a = a;
         }
 
-        public void Func1()
-        {
+        public void Func1() {
             Debug.Log("a=" + a);
         }
 
-        public T Func2()
-        {
+        public T Func2() {
             return default(T);
         }
     }
 
+    // 可以热更的嵌套类
     [Hotfix]
-    public class InnerTypeTest
-    {
-        public void Foo()
-        {
+    public class InnerTypeTest {
+        public void Foo() {
             _InnerStruct ret = Bar();
             Debug.Log("{x=" + ret.x + ",y= " + ret.y + "}");
         }
 
-        struct _InnerStruct
-        {
+        struct _InnerStruct {
             public int x;
             public int y;
         }
 
-        _InnerStruct Bar()
-        {
-            return new _InnerStruct { x = 1, y = 2 };
+        _InnerStruct Bar() {
+            return new _InnerStruct {
+                x = 1,
+                y = 2
+            };
         }
     }
 
-    public class BaseTestHelper
-    {
+    // 基类
+    public class BaseTestHelper {
 
     }
 
-    public class BaseTestBase<T> : BaseTestHelper
-    {
-        public virtual void Foo(int p)
-        {
+    // 泛型子类
+    public class BaseTestBase<T> : BaseTestHelper {
+        public virtual void Foo(int p) {
             Debug.Log("BaseTestBase<>.Foo, p = " + p);
         }
     }
 
+
     [Hotfix]
     [LuaCallCSharp]
-    public class BaseTest : BaseTestBase<InnerTypeTest>
-    {
-        public override void Foo(int p)
-        {
+    public class BaseTest : BaseTestBase<InnerTypeTest> {
+        public override void Foo(int p) {
             Debug.Log("BaseTest<>.Foo, p = " + p);
         }
 
-        public void Proxy(int p)
-        {
+        public void Proxy(int p) {
             base.Foo(p);
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return base.ToString();
         }
     }
 
+    // 可以热更的结构
     [Hotfix]
-    public struct StructTest
-    {
+    public struct StructTest {
         GameObject go;
-        public StructTest(GameObject go)
-        {
+        public StructTest(GameObject go) {
             this.go = go;
         }
 
-        public GameObject GetGo(int a, object b)
-        {
+        public GameObject GetGo(int a, object b) {
             return go;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return base.ToString();
         }
 
-        public string Proxy()
-        {
+        public string Proxy() {
             return base.ToString();
         }
     }
 
+    // 可以热更的 泛型结构
     [Hotfix]
-    public struct GenericStruct<T>
-    {
+    public struct GenericStruct<T> {
         T a;
 
-        public GenericStruct(T a)
-        {
+        public GenericStruct(T a) {
             this.a = a;
         }
 
-        public T GetA(int p)
-        {
+        public T GetA(int p) {
             return a;
         }
     }
 
-    public class HotfixTest2 : MonoBehaviour
-    {
+    public class HotfixTest2 : MonoBehaviour {
 
         // Use this for initialization
-        void Start()
-        {
+        void Start() {
             LuaEnv luaenv = new LuaEnv();
-            HotfixCalc calc = new HotfixCalc();
-            NoHotfixCalc ordinaryCalc = new NoHotfixCalc();
 
+            // 调用带有 [Hotfix] 标签的方法花费的时间
+            HotfixCalc calc = new HotfixCalc();
             int CALL_TIME = 100 * 1000 * 1000;
             var start = System.DateTime.Now;
-            for (int i = 0; i < CALL_TIME; i++)
-            {
+            for (int i = 0; i < CALL_TIME; i++) {
                 calc.Add(2, 1);
             }
             var d1 = (System.DateTime.Now - start).TotalMilliseconds;
             Debug.Log("Hotfix using:" + d1);
 
+            // 调用 不带 [Hotfix] 标签的 方法 花费的时间
+            NoHotfixCalc ordinaryCalc = new NoHotfixCalc();
             start = System.DateTime.Now;
-            for (int i = 0; i < CALL_TIME; i++)
-            {
+            for (int i = 0; i < CALL_TIME; i++) {
                 ordinaryCalc.Add(2, 1);
             }
             var d2 = (System.DateTime.Now - start).TotalMilliseconds;
             Debug.Log("No Hotfix using:" + d2);
 
+            // 以上两者之间的差距
             Debug.Log("drop:" + ((d1 - d2) / d1));
 
+
+
+            // 修复前
             Debug.Log("Before Fix: 2 + 1 = " + calc.Add(2, 1));
             Debug.Log("Before Fix: Vector3(2, 3, 4) + Vector3(1, 2, 3) = " + calc.Add(new Vector3(2, 3, 4), new Vector3(1, 2, 3)));
+            // 解析 lua 语句
             luaenv.DoString(@"
-            xlua.hotfix(CS.XLuaTest.HotfixCalc, 'Add', function(self, a, b)
-                return a + b
-            end)
-        ");
+                xlua.hotfix(CS.XLuaTest.HotfixCalc, 'Add', function(self, a, b)
+                    return a * b
+                end)
+            ");
+
+
             Debug.Log("After Fix: 2 + 1 = " + calc.Add(2, 1));
             Debug.Log("After Fix: Vector3(2, 3, 4) + Vector3(1, 2, 3) = " + calc.Add(new Vector3(2, 3, 4), new Vector3(1, 2, 3)));
 
@@ -386,12 +369,9 @@ namespace XLuaTest
         ");
             Debug.Log("gs.GetA()=" + gs.GetA(123));
 
-            try
-            {
+            try {
                 calc.TestOut(100, out num, ref str, gameObject);
-            }
-            catch (LuaException e)
-            {
+            } catch (LuaException e) {
                 Debug.Log("throw in lua an catch in c# ok, e.Message:" + e.Message);
             }
 
@@ -412,15 +392,13 @@ namespace XLuaTest
             Debug.Log(bt);
         }
 
-        void TestStateful()
-        {
+        void TestStateful() {
             StatefullTest sft = new StatefullTest();
             sft.AProp = 10;
             Debug.Log("sft.AProp:" + sft.AProp);
             sft["1"] = 1;
             Debug.Log("sft['1']:" + sft["1"]);
-            System.Action<int, double> cb = (a, b) =>
-            {
+            System.Action<int, double> cb = (a, b) => {
                 Debug.Log("a:" + a + ",b:" + b);
             };
             sft.AEvent += cb;
@@ -435,8 +413,7 @@ namespace XLuaTest
         }
 
         // Update is called once per frame
-        void Update()
-        {
+        void Update() {
 
         }
     }

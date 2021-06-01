@@ -1,33 +1,28 @@
 ﻿using UnityEngine;
 using XLua;
 
-namespace XLuaTest
-{
+// 已看
+namespace XLuaTest {
+    // 打个 Hotfix 标签， 表示 可以热更
     [Hotfix]
-    public class HotfixTest : MonoBehaviour
-    {
+    public class HotfixTest : MonoBehaviour {
         LuaEnv luaenv = new LuaEnv();
 
         private int tick = 0;
 
         // Use this for initialization
-        void Start()
-        {
+        void Start() {
         }
 
         // Update is called once per frame
-        void Update()
-        {
-            if (++tick % 50 == 0)
-            {
+        void Update() {
+            if (++tick % 50 == 0) {
                 Debug.Log(">>>>>>>>Update in C#, tick = " + tick);
             }
         }
 
-        void OnGUI()
-        {
-            if (GUI.Button(new Rect(10, 10, 300, 80), "Hotfix"))
-            {
+        void OnGUI() {
+            if (GUI.Button(new Rect(10, 10, 300, 80), "Hotfix")) {
                 luaenv.DoString(@"
                 xlua.hotfix(CS.XLuaTest.HotfixTest, 'Update', function(self)
                     self.tick = self.tick + 1

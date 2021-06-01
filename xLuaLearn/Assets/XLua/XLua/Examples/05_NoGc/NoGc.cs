@@ -10,21 +10,17 @@ using UnityEngine;
 using System;
 using XLua;
 
-namespace XLuaTest
-{
+namespace XLuaTest {
     [GCOptimize]
     [LuaCallCSharp]
-    public struct Pedding
-    {
+    public struct Pedding {
         public byte c;
     }
 
     [GCOptimize]
     [LuaCallCSharp]
-    public struct MyStruct
-    {
-        public MyStruct(int p1, int p2)
-        {
+    public struct MyStruct {
+        public MyStruct(int p1, int p2) {
             a = p1;
             b = p2;
             c = p2;
@@ -37,8 +33,7 @@ namespace XLuaTest
     }
 
     [LuaCallCSharp]
-    public enum MyEnum
-    {
+    public enum MyEnum {
         E1,
         E2
     }
@@ -62,14 +57,12 @@ namespace XLuaTest
     public delegate void ArrayAccess(Array arr);
 
     [CSharpCallLua]
-    public interface IExchanger
-    {
+    public interface IExchanger {
         void exchange(Array arr);
     }
 
     [LuaCallCSharp]
-    public class NoGc : MonoBehaviour
-    {
+    public class NoGc : MonoBehaviour {
         LuaEnv luaenv = new LuaEnv();
 
         IntParam f1;
@@ -94,34 +87,28 @@ namespace XLuaTest
         [NonSerialized]
         public decimal[] a5 = new decimal[] { 1.00001M, 2.00002M };
 
-        public float FloatParamMethod(float p)
-        {
+        public float FloatParamMethod(float p) {
             return p;
         }
 
-        public Vector3 Vector3ParamMethod(Vector3 p)
-        {
+        public Vector3 Vector3ParamMethod(Vector3 p) {
             return p;
         }
 
-        public MyStruct StructParamMethod(MyStruct p)
-        {
+        public MyStruct StructParamMethod(MyStruct p) {
             return p;
         }
 
-        public MyEnum EnumParamMethod(MyEnum p)
-        {
+        public MyEnum EnumParamMethod(MyEnum p) {
             return p;
         }
 
-        public decimal DecimalParamMethod(decimal p)
-        {
+        public decimal DecimalParamMethod(decimal p) {
             return p;
         }
 
         // Use this for initialization
-        void Start()
-        {
+        void Start() {
             luaenv.DoString(@"
                 function id(...)
                     return ...
@@ -184,8 +171,7 @@ namespace XLuaTest
 
 
         // Update is called once per frame
-        void Update()
-        {
+        void Update() {
             // c# call lua function with value type but no gc (using delegate)
             f1(1); // primitive type
             f2(new Vector3(1, 2, 3)); // vector3
@@ -233,9 +219,8 @@ namespace XLuaTest
             luaenv.Tick();
         }
 
-        void OnDestroy()
-        {
-            f1 =  null;
+        void OnDestroy() {
+            f1 = null;
             f2 = null;
             f3 = null;
             f4 = null;

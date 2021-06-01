@@ -6,16 +6,21 @@
 
 local util = require 'xlua.util'
 
+-- 创建 Coroutine_Runner GameObject
 local gameobject = CS.UnityEngine.GameObject('Coroutine_Runner')
 CS.UnityEngine.Object.DontDestroyOnLoad(gameobject)
+
+-- 添加 C# 脚本 Coroutine_Runner
 local cs_coroutine_runner = gameobject:AddComponent(typeof(CS.XLuaTest.Coroutine_Runner))
 
 return {
     start = function(...)
+		-- 调用 C# 脚本 Coroutine_Runner.StartCorountine
 	    return cs_coroutine_runner:StartCoroutine(util.cs_generator(...))
 	end;
 
 	stop = function(coroutine)
+		-- 调用 C# 脚本 Coroutine_Runner.StopCoroutine 
 	    cs_coroutine_runner:StopCoroutine(coroutine)
 	end
 }
